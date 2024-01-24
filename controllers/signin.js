@@ -1,27 +1,36 @@
-const handleSignin = (db, bcrypt) => (req, res) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json('incorrect form submission');
+const handleSignin = (User, bcrypt) => async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json('Invalid credentials');
+  }
+
+  try {
+    // Find user by email in MongoDB using the User model
+    const user = await User.findOne({ email });
+
+    if (user) {
+      // Compare the password using bcrypt
+      const isValid = bcrypt.compareSync(password, user.password);
+
+      if (isValid) {
+        // Customize the user object to be sent in the response
+        const { _id, name, email, joined } = user;
+        const userData = { _id, name, email, joined };
+
+        return res.json(userData);
+      } else {
+        return res.status(400).json('Invalid credentials');
+      }
+    } else {
+      return res.status(400).json('Wrong credentials');
     }
-    db.select('email', 'hash').from('login')
-      .where('email', '=', email)
-      .then(data => {
-        const isValid = bcrypt.compareSync(password, data[0].hash);
-        if (isValid) {
-          return db.select('*').from('users')
-            .where('email', '=', email)
-            .then(user => {
-              res.json(user[0])
-            })
-            .catch(err => res.status(400).json('unable to get user'))
-        } else {
-          res.status(400).json('wrong credentials')
-        }
-      })
-      .catch(err => res.status(400).json('wrong credentials'))
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json('Error signing in');
   }
-  
-  module.exports = {
-    handleSignin: handleSignin
-  }
-  
+};
+
+module.exports = {
+  handleSignin: handleSignin,
+};
