@@ -2,7 +2,7 @@ const handleRegister = async (req, res, User, bcrypt) => {
   const { email, name, password } = req.body;
 
   if (!email || !name || !password) {
-    return res.status(400).json('Invalid credentials');
+    return res.status(400).json("Invalid credentials");
   }
 
   try {
@@ -10,7 +10,7 @@ const handleRegister = async (req, res, User, bcrypt) => {
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      return res.status(400).json('Email is already registered');
+      return res.status(400).json("Email is already registered");
     }
 
     const hashedPassword = bcrypt.hashSync(password);
@@ -28,7 +28,7 @@ const handleRegister = async (req, res, User, bcrypt) => {
     res.json(savedUser);
   } catch (err) {
     console.error(err);
-    res.status(400).json('Unable to register');
+    res.status(400).json("Unable to register");
   }
 };
 
