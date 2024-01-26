@@ -65,7 +65,7 @@ app.put("/image", (req, res) => {
 });
 
 app.post("/imageurl", (req, res) => {
-  image.handleApiCall(req, res);
+  image.handleApiCall(req, res, User);
 });
 
 app.delete("/deleteuser/:id", (req, res) => {
